@@ -1,6 +1,39 @@
+import boto3
 from typing import Union
 from mypy_boto3_s3 import S3Client
 from pathlib import Path
+from bagels import config
+
+
+def override_db():
+    att = config.CONFIG.remoteAttribute
+
+    if att is None:
+        return
+
+    session = boto3.Session()
+    REGION = att.SPACES_REGION
+    ACCESS_KEY = att.SPACES_ACCESS_KEY
+    SECRET_KEY = att.SPACES_SECRET_KEY
+    SPACE_NAME = att.SPACES_BUCKET
+
+    client = session.client(
+        "s3",
+        region_name=REGION,
+        endpoint_url=f"https://{REGION}.digitaloceanspaces.com",
+        aws_access_key_id=ACCESS_KEY,
+        aws_secret_access_key=SECRET_KEY,
+    )
+
+    download_list = ["db.db"]
+    down_res = download_files(
+        client=client,
+        SPACE_NAME=SPACE_NAME,
+        download_list=download_list,
+        download_dir="remote/Downloads",
+    )
+
+    return down_res
 
 
 def list_files(client: S3Client, SPACE_NAME: str):
