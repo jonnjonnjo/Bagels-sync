@@ -3,7 +3,40 @@ from typing import Union
 from mypy_boto3_s3 import S3Client
 from pathlib import Path
 from bagels import config
-from bagels.locations import database_file
+from bagels.locations import data_directory, database_file
+
+
+def push_remote_database():
+    att = config.CONFIG.remoteAttribute
+
+    if att is None:
+        return
+
+    session = boto3.Session()
+    REGION = att.RD_REGION
+    ACCESS_KEY = att.RD_ACCESS_KEY
+    SECRET_KEY = att.RD_SECRET_KEY
+    SPACE_NAME = att.RD_BUCKET
+    SPACE_DOMAIN = att.RD_DOMAIN
+
+    client = session.client(
+        "s3",
+        region_name=REGION,
+        endpoint_url=f"https://{REGION}.{SPACE_DOMAIN}",
+        aws_access_key_id=ACCESS_KEY,
+        aws_secret_access_key=SECRET_KEY,
+    )
+
+    upload_list = ["db.db"]
+    local_base_dir = data_directory()
+
+    res_upload = upload_files(
+        client=client,
+        SPACE_NAME=SPACE_NAME,
+        upload_list=upload_list,
+        local_base_dir=local_base_dir,
+    )
+    return res_upload
 
 
 def pull_remote_database():
@@ -113,7 +146,8 @@ def upload_files(
     client: S3Client,
     SPACE_NAME: str,
     upload_list: list[Union[str, tuple[str, str]]] = None,
-    local_base_dir: str = "Downloads",
+    # local_base_dir: str = "Downloads",
+    local_base_dir: Path = Path("Downloads"),
 ):
     results = {"success": [], "failed": []}
     upload_path = Path(local_base_dir)
