@@ -3,9 +3,10 @@ from typing import Union
 from mypy_boto3_s3 import S3Client
 from pathlib import Path
 from bagels import config
+from bagels.locations import database_file
 
 
-def override_db():
+def pull_remote_database():
     att = config.CONFIG.remoteAttribute
 
     if att is None:
@@ -26,14 +27,22 @@ def override_db():
     )
 
     download_list = ["db.db"]
+    download_dir = Path("remote/Downloads")
     down_res = download_files(
         client=client,
         SPACE_NAME=SPACE_NAME,
         download_list=download_list,
-        download_dir="remote/Downloads",
+        download_dir=download_dir,
     )
 
+    override_file(source=download_dir / "db.db", dest=database_file())
+
     return down_res
+
+
+def override_file(source: Path, dest: Path):
+    dest.unlink(missing_ok=True)
+    source.rename(dest)
 
 
 def list_files(client: S3Client, SPACE_NAME: str):
@@ -62,11 +71,11 @@ def download_files(
     client: S3Client,
     SPACE_NAME: str,
     download_list: list[Union[str, tuple[str, str]]],
-    download_dir: str = "Downloads",
+    download_dir: Path = Path("Downloads"),
 ):
     remote_name = local_name = None
 
-    Path(download_dir).mkdir(parents=True, exist_ok=True)
+    download_dir.mkdir(parents=True, exist_ok=True)
 
     results = {"success": [], "failed": []}
 
