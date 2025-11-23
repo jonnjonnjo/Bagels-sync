@@ -22,6 +22,13 @@ class DatemodeHotkeys(BaseModel):
     go_to_day: str = "g"
 
 
+class RemoteDatabaseAttributes(BaseModel):
+    SPACES_ACCESS_KEY: str
+    SPACES_SECRET_KEY: str
+    SPACES_REGION: str
+    SPACES_BUCKET: str
+
+
 class HomeHotkeys(BaseModel):
     cycle_tabs: str = "c"
     budgets: str = "b"
@@ -108,6 +115,7 @@ class Config(BaseModel):
     hotkeys: Hotkeys = Hotkeys()
     symbols: Symbols = Symbols()
     defaults: Defaults = Defaults()
+    remoteAttribute: RemoteDatabaseAttributes | None = None
     state: State = State()
 
     def __init__(self, **data):
