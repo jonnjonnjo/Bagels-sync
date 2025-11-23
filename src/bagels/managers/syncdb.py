@@ -12,15 +12,15 @@ def override_db():
         return
 
     session = boto3.Session()
-    REGION = att.SPACES_REGION
-    ACCESS_KEY = att.SPACES_ACCESS_KEY
-    SECRET_KEY = att.SPACES_SECRET_KEY
-    SPACE_NAME = att.SPACES_BUCKET
-
+    REGION = att.RD_REGION
+    ACCESS_KEY = att.RD_ACCESS_KEY
+    SECRET_KEY = att.RD_SECRET_KEY
+    SPACE_NAME = att.RD_BUCKET
+    SPACE_DOMAIN = att.RD_DOMAIN
     client = session.client(
         "s3",
         region_name=REGION,
-        endpoint_url=f"https://{REGION}.digitaloceanspaces.com",
+        endpoint_url=f"https://{REGION}.{SPACE_DOMAIN}",
         aws_access_key_id=ACCESS_KEY,
         aws_secret_access_key=SECRET_KEY,
     )

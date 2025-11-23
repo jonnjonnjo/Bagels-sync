@@ -23,10 +23,11 @@ class DatemodeHotkeys(BaseModel):
 
 
 class RemoteDatabaseAttributes(BaseModel):
-    SPACES_ACCESS_KEY: str
-    SPACES_SECRET_KEY: str
-    SPACES_REGION: str
-    SPACES_BUCKET: str
+    RD_ACCESS_KEY: str
+    RD_DOMAIN: str
+    RD_SECRET_KEY: str
+    RD_REGION: str
+    RD_BUCKET: str
 
 
 class HomeHotkeys(BaseModel):
