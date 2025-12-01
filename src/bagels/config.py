@@ -63,6 +63,7 @@ class Hotkeys(BaseModel):
     delete: str = "d"
     edit: str = "e"
     toggle_jump_mode: str = "v"
+    toggle_sync_db_modal: str = "ctrl+s"
     home: HomeHotkeys = HomeHotkeys()
     record_modal: RecordModalHotkeys = RecordModalHotkeys()
     categories: CategoriesHotkeys = CategoriesHotkeys()

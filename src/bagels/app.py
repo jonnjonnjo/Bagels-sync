@@ -42,8 +42,8 @@ class App(TextualApp):
     BINDINGS = [
         (CONFIG.hotkeys.toggle_jump_mode, "toggle_jump_mode", "Jump Mode"),
         (CONFIG.hotkeys.home.cycle_tabs, "cycle_tabs", "Cycle tabs"),
+        (CONFIG.hotkeys.toggle_sync_db_modal, "show_db_sync_modal", "SYNCHRONIZE"),
         ("ctrl+q", "quit", "Quit"),
-        ("ctrl+b", "show_db_sync_modal", "SYNCHRONIZE"),
     ]
     COMMANDS = {AppProvider}
 
