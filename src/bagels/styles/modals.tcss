@@ -148,3 +148,57 @@
     }
   }
   
+/* ---------------------------------- */
+/*             Options Modal            */
+/* ---------------------------------- */
+/*
+ModalOptions, ModalDBSync {
+    align: center middle;
+}
+
+#dialog {
+    width: 50;
+    height: auto;
+    border: thick $background 80%;
+    background: $surface;
+    padding: 1 2;
+}
+
+#question {
+    width: 100%;
+    content-align: center middle;
+    padding: 1;
+}
+
+#options {
+    width: 100%;
+    height: auto;
+    border: none;
+}
+*/
+
+/* Make the modal screen background semi-transparent */
+ModalOptions, ModalDBSync {
+    align: center middle;
+    background: $background 50%;  /* Semi-transparent overlay */
+}
+
+#dialog {
+    width: 50;
+    height: auto;
+    border: thick $primary;
+    background: $surface;
+    padding: 1 2;
+}
+
+#question {
+    width: 100%;
+    content-align: center middle;
+    padding: 1;
+}
+
+#options {
+    width: 100%;
+    height: auto;
+    border: none;
+}

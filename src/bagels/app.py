@@ -15,6 +15,7 @@ from textual.widgets import Footer, Label, Tab, Tabs
 
 from bagels.components.jump_overlay import JumpOverlay
 from bagels.components.jumper import Jumper
+from bagels.modals.modal_sync_db import ModalDBSync
 from bagels.config import CONFIG, write_state
 from bagels.home import Home
 from bagels.locations import data_directory
@@ -37,10 +38,12 @@ class App(TextualApp):
         "styles/manager.tcss",
         "styles/manager_modules.tcss",
     ]
+
     BINDINGS = [
         (CONFIG.hotkeys.toggle_jump_mode, "toggle_jump_mode", "Jump Mode"),
         (CONFIG.hotkeys.home.cycle_tabs, "cycle_tabs", "Cycle tabs"),
         ("ctrl+q", "quit", "Quit"),
+        ("ctrl+b", "show_db_sync_modal", "SYNCHRONIZE"),
     ]
     COMMANDS = {AppProvider}
 
@@ -149,6 +152,21 @@ class App(TextualApp):
         #     return
         if not event.option_selected:
             self.app_theme = self._original_theme
+
+    def action_show_db_sync_modal(self) -> None:
+        """Show the DB sync confirmation modal."""
+
+        def handle_result(result) -> None:
+            if result == "sync":
+                # Perform database sync
+                self.notify("Syncing database...", title="DB Sync")
+            elif result == "cancel":
+                self.notify("Sync cancelled")
+            else:
+                # result is None (user pressed ESC)
+                self.notify("Dismissed")
+
+        self.push_screen(ModalDBSync(), callback=handle_result)
 
     # region jumper
     # -------------- jumper -------------- #
