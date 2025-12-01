@@ -1,5 +1,7 @@
 from importlib.metadata import metadata
 
+from bagels.managers.syncdb import pull_remote_database, push_local_database
+from bagels.models.database.app import reconnect_database
 from textual import events, log, on
 from textual.app import App as TextualApp
 from textual.app import ComposeResult
@@ -165,13 +167,24 @@ class App(TextualApp):
             return
 
         def handle_result(result) -> None:
-            if result == "sync":
-                # Perform database sync
-                self.notify("Syncing database...", title="DB Sync")
-            elif result == "cancel":
-                self.notify("Sync cancelled")
+            if result == "pull":
+                self.notify(
+                    "Downloading remote database", title="DB Pull", severity="warning"
+                )
+                pull_remote_database()
+                message = reconnect_database()
+
+                self.refresh(recompose=True)
+                severity = "information" if "successfully" in message else "error"
+                self.notify(message, title="DB Pull", severity=severity)
+            elif result == "push":
+                self.notify(
+                    "Uploading local database", title="DB Sync", severity="warning"
+                )
+                push_local_database()
+                self.notify("Upload sucess", title="DB Push")
             else:
-                self.notify("Dismissed")
+                self.notify("Dismissed", title="DB Sync")
 
         self.push_screen(ModalDBSync(), callback=handle_result)
 

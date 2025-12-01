@@ -7,15 +7,20 @@ class ModalDBSync(ModalOptions):
 
     def __init__(self) -> None:
         super().__init__(
-            message="Are you sure you want to sync the database?",
-            options=["Yes, sync now", "No, cancel sync"],
+            message="Database Synchronization",
+            options=[
+                "Download from remote (pull)",
+                "Upload to remote (push)",
+            ],
         )
 
-    # Optional: Override if you need specific behavior
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         """Handle DB sync specific selection."""
         selected = event.option.prompt
-        if "Yes" in selected:
-            self.dismiss("sync")
+
+        if "Download" in selected or "pull" in selected:
+            self.dismiss("pull")
+        elif "Upload" in selected or "push" in selected:
+            self.dismiss("push")
         else:
             self.dismiss("cancel")

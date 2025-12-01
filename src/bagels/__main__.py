@@ -110,8 +110,6 @@ def cli(ctx, at: Path | None, migrate: str | None, source: Path | None):
             progress.update(task, advance=1)
 
         app.run()
-        # print(pull_remote_database())
-        # push_local_database()
 
 
 @cli.command()

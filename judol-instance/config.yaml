@@ -32,7 +32,13 @@ hotkeys:
     new_split: ctrl+a
     submit_and_template: ctrl+t
   toggle_jump_mode: v
-remoteAttribute: null
+  toggle_sync_db_modal: ctrl+s
+remoteAttribute:
+  RD_ACCESS_KEY: DO801BEYKUQV4HAVDKGW
+  RD_BUCKET: bagel-jon
+  RD_DOMAIN: digitaloceanspaces.com
+  RD_REGION: sgp1
+  RD_SECRET_KEY: OxQt9Mpg3HQ8e8ox7XHmbdiKwgVPJIeZY3LJsbErkKw
 state:
   budgeting:
     income_assess_fallback: 3500
