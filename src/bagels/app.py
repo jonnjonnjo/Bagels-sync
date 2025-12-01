@@ -156,6 +156,14 @@ class App(TextualApp):
     def action_show_db_sync_modal(self) -> None:
         """Show the DB sync confirmation modal."""
 
+        if CONFIG.remoteAttribute is None:
+            self.notify(
+                "Remote database not configured. Please set up your remote database credentials in config.yaml",
+                severity="error",
+                title="Sync Unavailable",
+            )
+            return
+
         def handle_result(result) -> None:
             if result == "sync":
                 # Perform database sync
@@ -163,7 +171,6 @@ class App(TextualApp):
             elif result == "cancel":
                 self.notify("Sync cancelled")
             else:
-                # result is None (user pressed ESC)
                 self.notify("Dismissed")
 
         self.push_screen(ModalDBSync(), callback=handle_result)
