@@ -169,24 +169,99 @@ class App(TextualApp):
         def handle_result(result) -> None:
             if result == "pull":
                 self.notify(
-                    "Downloading remote database", title="DB Pull", severity="warning"
+                    "Downloading remote database...",
+                    title="DB Pull",
+                    severity="information",
                 )
-                pull_remote_database()
-                message = reconnect_database()
+
+                pull_result = pull_remote_database()
+
+                if not pull_result["success"]:
+                    self.notify(
+                        pull_result["error"],
+                        title="DB Pull Failed",
+                        severity="error",
+                        timeout=5,
+                    )
+                    return
+
+                self.notify(
+                    "Download complete. Reconnecting to database...",
+                    title="DB Pull",
+                    severity="information",
+                )
+
+                reconnect_message = reconnect_database()
+
+                if "successfully" not in reconnect_message:
+                    # Reconnection failed
+                    self.notify(
+                        f"Database reconnection failed: {reconnect_message}",
+                        title="DB Pull Failed",
+                        severity="error",
+                        timeout=5,
+                    )
+                    return
 
                 self.refresh(recompose=True)
-                severity = "information" if "successfully" in message else "error"
-                self.notify(message, title="DB Pull", severity=severity)
+                self.notify(
+                    "Database pulled and refreshed successfully",
+                    title="DB Pull Complete",
+                    severity="information",
+                    timeout=3,
+                )
+
             elif result == "push":
                 self.notify(
-                    "Uploading local database", title="DB Sync", severity="warning"
+                    "Uploading local database...",
+                    title="DB Push",
+                    severity="information",
                 )
-                push_local_database()
-                self.notify("Upload sucess", title="DB Push")
+
+                push_result = push_local_database()
+
+                if not push_result["success"]:
+                    self.notify(
+                        push_result["error"],
+                        title="DB Push Failed",
+                        severity="error",
+                        timeout=5,
+                    )
+                    return
+
+                self.notify(
+                    push_result["message"],
+                    title="DB Push Complete",
+                    severity="information",
+                    timeout=3,
+                )
+
             else:
-                self.notify("Dismissed", title="DB Sync")
+                self.notify("Sync cancelled", title="DB Sync", timeout=1)
 
         self.push_screen(ModalDBSync(), callback=handle_result)
+
+        # def handle_result(result) -> None:
+        #     if result == "pull":
+        #         self.notify(
+        #             "Downloading remote database", title="DB Pull", severity="warning"
+        #         )
+        #         pull_remote_database()
+        #         message = reconnect_database()
+        #
+        #         self.refresh(recompose=True)
+        #         severity = "information" if "successfully" in message else "error"
+        #         self.notify(message, title="DB Pull", severity=severity)
+        #     elif result == "push":
+        #         self.notify(
+        #             "Uploading local database", title="DB Sync", severity="warning"
+        #         )
+        #         push_local_database()
+        #         self.notify("Upload sucess", title="DB Push")
+        #     else:
+        #         self.notify("Dismissed", title="DB Sync")
+        #
+        # self.push_screen(ModalDBSync(), callback=handle_result)
 
     # region jumper
     # -------------- jumper -------------- #
