@@ -22,6 +22,14 @@ class DatemodeHotkeys(BaseModel):
     go_to_day: str = "g"
 
 
+class RemoteDatabaseAttributes(BaseModel):
+    RD_ACCESS_KEY: str
+    RD_DOMAIN: str
+    RD_SECRET_KEY: str
+    RD_REGION: str
+    RD_BUCKET: str
+
+
 class HomeHotkeys(BaseModel):
     cycle_tabs: str = "c"
     budgets: str = "b"
@@ -55,6 +63,7 @@ class Hotkeys(BaseModel):
     delete: str = "d"
     edit: str = "e"
     toggle_jump_mode: str = "v"
+    toggle_sync_db_modal: str = "ctrl+s"
     home: HomeHotkeys = HomeHotkeys()
     record_modal: RecordModalHotkeys = RecordModalHotkeys()
     categories: CategoriesHotkeys = CategoriesHotkeys()
@@ -108,6 +117,7 @@ class Config(BaseModel):
     hotkeys: Hotkeys = Hotkeys()
     symbols: Symbols = Symbols()
     defaults: Defaults = Defaults()
+    remoteAttribute: RemoteDatabaseAttributes | None = None
     state: State = State()
 
     def __init__(self, **data):

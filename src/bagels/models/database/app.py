@@ -125,6 +125,15 @@ def init_db():
     session.close()
 
 
+def reconnect_database():
+    try:
+        db_engine.dispose()
+        init_db()
+        return "Database successfully reconnected"
+    except Exception:
+        return "Database failed to connect"
+
+
 def wipe_database():
     Base.metadata.drop_all(db_engine)
     _sync_database_schema()

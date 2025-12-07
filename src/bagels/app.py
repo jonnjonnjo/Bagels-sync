@@ -1,5 +1,7 @@
 from importlib.metadata import metadata
 
+from bagels.managers.syncdb import pull_remote_database, push_local_database
+from bagels.models.database.app import reconnect_database
 from textual import events, log, on
 from textual.app import App as TextualApp
 from textual.app import ComposeResult
@@ -15,6 +17,7 @@ from textual.widgets import Footer, Label, Tab, Tabs
 
 from bagels.components.jump_overlay import JumpOverlay
 from bagels.components.jumper import Jumper
+from bagels.modals.modal_sync_db import ModalDBSync
 from bagels.config import CONFIG, write_state
 from bagels.home import Home
 from bagels.locations import data_directory
@@ -37,9 +40,11 @@ class App(TextualApp):
         "styles/manager.tcss",
         "styles/manager_modules.tcss",
     ]
+
     BINDINGS = [
         (CONFIG.hotkeys.toggle_jump_mode, "toggle_jump_mode", "Jump Mode"),
         (CONFIG.hotkeys.home.cycle_tabs, "cycle_tabs", "Cycle tabs"),
+        (CONFIG.hotkeys.toggle_sync_db_modal, "show_db_sync_modal", "SYNCHRONIZE"),
         ("ctrl+q", "quit", "Quit"),
     ]
     COMMANDS = {AppProvider}
@@ -149,6 +154,114 @@ class App(TextualApp):
         #     return
         if not event.option_selected:
             self.app_theme = self._original_theme
+
+    def action_show_db_sync_modal(self) -> None:
+        """Show the DB sync confirmation modal."""
+
+        if CONFIG.remoteAttribute is None:
+            self.notify(
+                "Remote database not configured. Please set up your remote database credentials in config.yaml",
+                severity="error",
+                title="Sync Unavailable",
+            )
+            return
+
+        def handle_result(result) -> None:
+            if result == "pull":
+                self.notify(
+                    "Downloading remote database...",
+                    title="DB Pull",
+                    severity="information",
+                )
+
+                pull_result = pull_remote_database()
+
+                if not pull_result["success"]:
+                    self.notify(
+                        pull_result["error"],
+                        title="DB Pull Failed",
+                        severity="error",
+                        timeout=5,
+                    )
+                    return
+
+                self.notify(
+                    "Download complete. Reconnecting to database...",
+                    title="DB Pull",
+                    severity="information",
+                )
+
+                reconnect_message = reconnect_database()
+
+                if "successfully" not in reconnect_message:
+                    # Reconnection failed
+                    self.notify(
+                        f"Database reconnection failed: {reconnect_message}",
+                        title="DB Pull Failed",
+                        severity="error",
+                        timeout=5,
+                    )
+                    return
+
+                self.refresh(recompose=True)
+                self.notify(
+                    "Database pulled and refreshed successfully",
+                    title="DB Pull Complete",
+                    severity="information",
+                    timeout=3,
+                )
+
+            elif result == "push":
+                self.notify(
+                    "Uploading local database...",
+                    title="DB Push",
+                    severity="information",
+                )
+
+                push_result = push_local_database()
+
+                if not push_result["success"]:
+                    self.notify(
+                        push_result["error"],
+                        title="DB Push Failed",
+                        severity="error",
+                        timeout=5,
+                    )
+                    return
+
+                self.notify(
+                    push_result["message"],
+                    title="DB Push Complete",
+                    severity="information",
+                    timeout=3,
+                )
+
+            else:
+                self.notify("Sync cancelled", title="DB Sync", timeout=1)
+
+        self.push_screen(ModalDBSync(), callback=handle_result)
+
+        # def handle_result(result) -> None:
+        #     if result == "pull":
+        #         self.notify(
+        #             "Downloading remote database", title="DB Pull", severity="warning"
+        #         )
+        #         pull_remote_database()
+        #         message = reconnect_database()
+        #
+        #         self.refresh(recompose=True)
+        #         severity = "information" if "successfully" in message else "error"
+        #         self.notify(message, title="DB Pull", severity=severity)
+        #     elif result == "push":
+        #         self.notify(
+        #             "Uploading local database", title="DB Sync", severity="warning"
+        #         )
+        #         push_local_database()
+        #         self.notify("Upload sucess", title="DB Push")
+        #     else:
+        #         self.notify("Dismissed", title="DB Sync")
+        #
+        # self.push_screen(ModalDBSync(), callback=handle_result)
 
     # region jumper
     # -------------- jumper -------------- #
